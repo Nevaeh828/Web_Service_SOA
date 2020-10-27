@@ -9,24 +9,7 @@ export default class SearchContentNews extends Component {
         super(props);
         this.state = {
           keyword: window.location.hash.slice(15),
-          data:{
-            error_code:0,
-            reason:'',
-            result:[
-                {
-                    title:'',
-                    content:'',
-                    img_width:'',
-                    full_title:'',
-                    pdate:'',
-                    src:'',
-                    img_length:'',
-                    img:'',
-                    url:'',
-                    pdate_src:''
-                }
-            ],
-          }
+          data:[]
         };
       }
 
@@ -36,12 +19,13 @@ export default class SearchContentNews extends Component {
         .get(url)
         .then((res) => {
         console.log('res4:', res.data)
-        var jsonObj=xmlStrToJsonObj(res.data)
-        var myData=jsonObj.response.lives.live
+        var xmlParser = new XmlToJson();
+        var myData = xmlParser.parse(res.data);
         console.log('myData(JSON):', myData)
-        this.setState({data:myData})
+        this.setState({data:myData.items[2].items})
+        console.log(this.state.data)
+
         })
-        
         .catch(function (error) {
         console.log(error)
         })
@@ -56,14 +40,14 @@ export default class SearchContentNews extends Component {
   
     render() {
         //初始化render数组状态
-        let objArr=this.state.data.result
+        let objArr=this.state.data
         return(
         <Layout>
                 <PageHeader
                   className="site-page-header"
                   ghost={false}
                   title="其次我家事国事天下事皆知，要问这个？"
-                  subTitle="都是正经新闻"
+                  subTitle="都是最新新闻"
               />  
             <List
                 itemLayout="vertical"
@@ -82,15 +66,15 @@ export default class SearchContentNews extends Component {
                     //头像
                     */
                     title={
-                    <a href={item.url}>
-                        {item.title}
-                    </a>
+                        item.items[0].text
                     }
                     //昵称
-                    description={"新闻来源："+item.src+" 发布时间："+item.pdate_src+" "+item.pdate}
+                    description={"新闻来源："+item.items[2].items[2].text+" 发布时间："+item.items[2].items[1].text}
                     //账号
                     />
-                    <p>{item.content}</p>
+                    <p>
+                        {item.items[1].text}
+                    </p>
                     <Divider />
                 </List.Item>
                 )}
@@ -102,48 +86,54 @@ export default class SearchContentNews extends Component {
 }
 
 // 调用函数将XML转换为JSON
-function xmlStrToJsonObj(xmlStr) {
-    var xmlObj = xmlStrToXmlObj(xmlStr)
-    var jsonObj = {}
-    if (xmlObj.childNodes.length > 0) {
-        jsonObj = xmlObjToJsonObj(xmlObj.childNodes)
-    }
-    return jsonObj
+function XmlToJson() {
 }
-
-function xmlStrToXmlObj(xmlStr) {
-    var xmlObj = {}
-    if (document.all) {
-        var xmlDom = new window.ActiveXObject("Microsoft.XMLDOM")
-        xmlDom.loadXML(xmlStr)
-        xmlObj = xmlDom
-    } else {
-        xmlObj = new DOMParser().parseFromString(xmlStr, "text/xml")
+XmlToJson.prototype.setXml = function(xml) {
+    if(xml && typeof xml == "string") {
+        this.xml = document.createElement("div");
+        this.xml.innerHTML = xml;
+        this.xml = this.xml.getElementsByTagName("*")[0];
     }
-    return xmlObj
-}
-
-function xmlObjToJsonObj(xmlNodes) {
-    var obj = {}
-    // eslint-disable-next-line
-    if (xmlNodes.length == 0) {
-        obj = ''
-    } 
-    else if ( xmlNodes === 'error_code'){
-        obj = 0
+    else if(typeof xml == "object"){
+        this.xml = xml;
     }
-    else {
-        for (var i = 0; i < xmlNodes.length; i++) {
-            // eslint-disable-next-line
-            var node = xmlNodes[i]// eslint-disable-next-line
-            if (typeof node.tagName == "undefined" || node.nodeName == "#text") {
-                obj = node.nodeValue
-            } else {
-                var key = node.tagName
-                var value = xmlObjToJsonObj(node.childNodes)
-                obj[key] = value
-            }
+};
+XmlToJson.prototype.getXml = function() {
+    return this.xml;
+};
+XmlToJson.prototype.parse = function(xml) {
+    this.setXml(xml);
+    return this.convert(this.xml);
+};
+XmlToJson.prototype.convert = function(xml) {
+    if (xml.nodeType != 1) {
+        return null;
+    }
+    var obj = {};
+    obj.xtype = xml.nodeName.toLowerCase();
+    var nodeValue = (xml.textContent || "").replace(/(\r|\n)/g, "").replace(/^\s+|\s+$/g, "");
+   
+    if(nodeValue && xml.childNodes.length == 1) {
+        obj.text = nodeValue;
+    }
+    if (xml.attributes.length > 0) {
+        for (var j = 0; j < xml.attributes.length; j++) {
+            var attribute = xml.attributes.item(j);
+            obj[attribute.nodeName] = attribute.nodeValue;
         }
     }
-    return obj
-}
+    if (xml.childNodes.length > 0) {
+        var items = [];
+        for(var i = 0; i < xml.childNodes.length; i++) {
+            var node = xml.childNodes.item(i);
+            var item = this.convert(node);
+            if(item) {
+                items.push(item);
+            }
+        }
+        if(items.length > 0) {
+            obj.items = items;
+        }
+    }
+    return obj;
+};

@@ -210,7 +210,9 @@ def dream():
 
 ![Screenshot2](/Users/apple/Desktop/Screenshot2.png)
 
+![63AEE1A8555342C4B1ECA2CB84307E3E](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/63AEE1A8555342C4B1ECA2CB84307E3E.png)
 
+![2F0224F730BAE75184D9221CE921DD90](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/2F0224F730BAE75184D9221CE921DD90.png)
 
 ## 6. Background Setup Instruction
 

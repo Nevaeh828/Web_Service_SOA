@@ -4,7 +4,7 @@ import SearchContentDream from '../../components/search/searchContentDream'
 import LogoBar from '../../components/logoBar'
 import SearchContentNews from '../../components/search/searchContentNews'
 import SearchContentTransEng from '../../components/search/searchContentTransEng'
-import { Row, Col, Layout, PageHeader } from 'antd';
+import { Row, Col, Layout, PageHeader, Card } from 'antd';
 
 export default class SearchResult extends Component {
     render() {
@@ -22,13 +22,17 @@ export default class SearchResult extends Component {
                         <SearchContentTransEng />
                     </Col>
                 </Row>
-                <Layout style={{ margin: '2% 8% 5% 8%' }}>
+                <Layout style={{ margin: '2% 8% 5% 8%', backgroundColor: 'white' }}>
                     <Row>
                         <Col span={12}>
-                            <SearchContentNews />              
+                            <Card>
+                                <SearchContentNews />                                           
+                            </Card>
                         </Col>
                         <Col span={12}>
-                            <SearchContentDream />
+                            <Card>
+                                <SearchContentDream />
+                            </Card>
                         </Col>
                     </Row>
                 </Layout>
