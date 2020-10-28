@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Layout, List, PageHeader, Divider } from 'antd';
+import { Layout, List, PageHeader, Divider, Empty } from 'antd';
 import axios from 'axios'
 axios.defaults.baseURL = '/api'
 
@@ -37,6 +37,7 @@ export default class SearchContentDream extends Component {
     render() {
       //初始化render数组状态
       let objArr=this.state.myData
+      if(objArr!==null){
         return(
           <Layout>
               <PageHeader
@@ -61,7 +62,22 @@ export default class SearchContentDream extends Component {
                 )}
             />            
           </Layout>
-        )
-
+        )        
       }
+      else return(
+        <Layout>
+        <PageHeader
+          className="site-page-header"
+          ghost={false}
+          title="最后我还熟读《周公解梦》，昨晚梦见这个啦？"
+          subTitle="想不到吧"
+      />
+        <Empty
+            style={{margin: '10px'}}
+            description="被你逮到了，我确实不知道"
+        >
+        </Empty>
+        </Layout>
+      )
+    }
 }

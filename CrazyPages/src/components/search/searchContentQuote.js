@@ -1,20 +1,22 @@
 import React, { Component } from 'react'
-import { Layout, List, PageHeader, Divider } from 'antd';
+import { Layout, Empty, PageHeader, Divider, List } from 'antd';
 import axios from 'axios'
 axios.defaults.baseURL = '/api'
 
-export default class SearchContentNews extends Component {
+var total
+
+export default class SearchContentQuote extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
           keyword: window.location.hash.slice(15),
-          data:[]
+          dddata:[]
         };
       }
 
     componentDidMount(){
-        var url = '/news?kw=' + this.state.keyword
+        var url = '/quote?kw=' + this.state.keyword
         axios
         .get(url)
         .then((res) => {
@@ -22,34 +24,52 @@ export default class SearchContentNews extends Component {
         var xmlParser = new XmlToJson();
         var myData = xmlParser.parse(res.data);
         console.log('myData(JSON):', myData)
-        this.setState({data:myData.items[2].items})
-        console.log(this.state.data)
+        console.log(myData.items[3].items)
+        console.log(myData.items[2].text)
+        total = myData.items[2].text
 
+        this.setState({dddata: myData.items[3].items}, ()=> console.log(this.state.dddata))
         })
         .catch(function (error) {
         console.log(error)
         })
     }
-
     componentWillUnmount = () => {
         this.setState = (state,callback)=>{
           return;
         };
     }
-    
-  
+
     render() {
         //初始化render数组状态
-        let objArr=this.state.data
-        return(
-        <Layout>
+        let objArr=this.state.dddata
+
+        if(total === 0){
+            return(
+                <Layout>
+                        <PageHeader
+                        className="site-page-header"
+                        ghost={false}
+                        title="其次我中外古今名人名言皆知，这个相关的？"
+                        subTitle="都不在话下"
+                    />
+                        <Empty
+                            style={{margin: '10px'}}
+                            description="被你逮到了，我确实不知道"
+                        >
+                        </Empty>   
+                </Layout>             
+            )
+        }
+        else return(
+            <Layout>
                 <PageHeader
-                  className="site-page-header"
-                  ghost={false}
-                  title="其次我家事国事天下事皆知，要问这个？"
-                  subTitle="都是最新新闻"
-              />  
-            <List
+                className="site-page-header"
+                ghost={false}
+                title="其次我中外古今名人名言皆知，这个相关的？"
+                subTitle="都不在话下"
+            />
+               <List
                 itemLayout="vertical"
                 dataSource={objArr}
                 style={{ margin: '0 20px 0 20px' }}
@@ -57,28 +77,18 @@ export default class SearchContentNews extends Component {
                 renderItem={item => (
                 <List.Item>
                     <List.Item.Meta
-                    /*
-                    avatar={
-                    <a href={'#/personal/account='+item.account}>
-                        <Avatar src={item.icon}/>
-                    </a>
-                    }
-                    //头像
-                    */
                     title={
-                        item.items[0].text
+                        item.items[0].text+"说："
                     }
-                    //昵称
-                    description={"新闻来源："+item.items[2].items[2].text+" 发布时间："+item.items[2].items[1].text}
-                    //账号
+                    //名人
+                    description={item.items[1].text}
+                    //名人名言内容
                     />
-                    <p>
-                        {item.items[1].text}
-                    </p>
                     <Divider />
                 </List.Item>
                 )}
-            />            
+            />
+           
         </Layout>
         )
   
@@ -106,14 +116,14 @@ XmlToJson.prototype.parse = function(xml) {
     return this.convert(this.xml);
 };
 XmlToJson.prototype.convert = function(xml) {
-    if (xml.nodeType != 1) {
+    if (xml.nodeType !== 1) {
         return null;
     }
     var obj = {};
     obj.xtype = xml.nodeName.toLowerCase();
     var nodeValue = (xml.textContent || "").replace(/(\r|\n)/g, "").replace(/^\s+|\s+$/g, "");
    
-    if(nodeValue && xml.childNodes.length == 1) {
+    if(nodeValue && xml.childNodes.length === 1) {
         obj.text = nodeValue;
     }
     if (xml.attributes.length > 0) {

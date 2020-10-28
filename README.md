@@ -6,9 +6,11 @@
 
 ##### Tutor: Liu Yan
 
+------
+
 ## 1. Abstraction
 
-This document is a project document for the assigned individual project for Web Service & SOA course. It's written as an entertainment auxiliary for every single person, especially who surf the Internet a lot. For some objective reasons, the theme of my project has changed after the project proposal submitted. This document aims to draw a brief illustration of CrazyPages and make it easier to learn about its technology stack. This proposal is divided into 5 parts mainly. The first part intoduces the design concept and practicality of Sino, in addition to some operation guides. Then the second part demonstrates the architecture of the project, divided by the front-end and the back-end design. The third lists all the web-apis I've used, demonstrates all the apis that I design and achieve, and explains the integration. The fourth part demonstrates a few screenshots of my project. The last part instructs readers to set up environment and precondition in order to run the whole project.
+This document is a project document for the assigned individual project for Web Service & SOA course. It's written as an entertainment auxiliary for every single person, especially who surf the Internet a lot. For some objective reasons, the theme of my project has changed after the project proposal submitted. This document aims to draw a brief illustration of CrazyPages and make it easier to learn about its technology stack. This proposal is divided into 5 parts mainly. The first part intoduces the design concept and practicality of CrazyPages, in addition to some operation guides. Then the second part demonstrates the architecture of the project, divided by the front-end and the back-end design. The third lists all the web-apis I've used, demonstrates all the apis that I design and achieve, and explains the integration. The fourth part demonstrates a few screenshots of my project. The last part instructs readers to set up environment and precondition in order to run the whole project.
 
 
 
@@ -26,7 +28,7 @@ CrazyPages is a product made by a crazy programmer( yey, that's me), to provide 
 
 My front-end part is based on a react scaffolding. React basically helps to distribute task into lower levels and realize easier data fetching and access. The structure is listed as below.
 
-![77D3F24B62F802304849AF6B3EACC811](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/77D3F24B62F802304849AF6B3EACC811.png)
+<img src="/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/F007A110-D22A-4B31-91BE-4C319597F947.png" alt="F007A110-D22A-4B31-91BE-4C319597F947" style="zoom:33%;" />
 
 #### 3.1.2 Structure
 
@@ -40,8 +42,6 @@ My front-end part is based on a react scaffolding. React basically helps to dist
 - craco.config.js => realize the global configuration of UI component library such as change theme color
 - setupProxy.js => import http-proxy-middleware and set up my Proxy agent
 
-
-
 #### 3.1.3 Most Used Libraries
 
 1. ant-design UI
@@ -49,15 +49,13 @@ My front-end part is based on a react scaffolding. React basically helps to dist
 3. proxy
 4. jquery
 
-
-
 #### 3.1.4 Essential Code Pics
 
 ![EE81BE5CCE9BF91735B27B2ABE7852D8](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/EE81BE5CCE9BF91735B27B2ABE7852D8.png)
 
 pic1: set routes
 
-![AAA4D9F20B668A3F6D4B2F1D929C73E6](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/AAA4D9F20B668A3F6D4B2F1D929C73E6.png)
+![2EA2176D-D067-457A-9E3C-022C63830029](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/2EA2176D-D067-457A-9E3C-022C63830029.png)
 
 pic2: SearchResult Component design
 
@@ -81,6 +79,70 @@ pic6: SearchContentTransEng Component design, including fetch data through web-a
 
 pic7-8: SearchContentHistory Component design, including fetch data through my api by agent name
 
+![E69B235C-1014-4435-8260-668C24E67525](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/E69B235C-1014-4435-8260-668C24E67525.png)
+
+![7715365B-4485-4AFA-940A-7BA12FFF58FF](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/7715365B-4485-4AFA-940A-7BA12FFF58FF.png)
+
+pic9-10: SearchContentDream Component design, featuring fault-tolerance assurance with renderung empty status
+
+
+
+Below is my XmlToJson function:
+
+```javascript
+// 调用函数将XML转换为JSON
+function XmlToJson() {
+}
+XmlToJson.prototype.setXml = function(xml) {
+    if(xml && typeof xml == "string") {
+        this.xml = document.createElement("div");
+        this.xml.innerHTML = xml;
+        this.xml = this.xml.getElementsByTagName("*")[0];
+    }
+    else if(typeof xml == "object"){
+        this.xml = xml;
+    }
+};
+XmlToJson.prototype.getXml = function() {
+    return this.xml;
+};
+XmlToJson.prototype.parse = function(xml) {
+    this.setXml(xml);
+    return this.convert(this.xml);
+};
+XmlToJson.prototype.convert = function(xml) {
+    if (xml.nodeType !== 1) {
+        return null;
+    }
+    var obj = {};
+    obj.xtype = xml.nodeName.toLowerCase();
+    var nodeValue = (xml.textContent || "").replace(/(\r|\n)/g, "").replace(/^\s+|\s+$/g, "");
+    if(nodeValue && xml.childNodes.length === 1) {
+      obj.text = nodeValue;
+    }
+    if (xml.attributes.length > 0) {
+        for (var j = 0; j < xml.attributes.length; j++) {
+            var attribute = xml.attributes.item(j);
+            obj[attribute.nodeName] = attribute.nodeValue;
+        }
+    }
+    if (xml.childNodes.length > 0) {
+        var items = [];
+        for(var i = 0; i < xml.childNodes.length; i++) {
+            var node = xml.childNodes.item(i);
+            var item = this.convert(node);
+            if(item) {
+                items.push(item);
+            }
+        }
+        if(items.length > 0) {
+            obj.items = items;
+        }
+    }
+    return obj;
+};
+```
+
 
 
 ### 3.2 Back-end
@@ -88,8 +150,6 @@ pic7-8: SearchContentHistory Component design, including fetch data through my a
 #### 3.2.1 Introduction
 
 My back-end part is based on Python Flask. I've learned how to use Flask to finish enough requirements for my project just for one night and finally realize everything necessary. Python Flask is agile, efficient and practical. And it's so suitable for this assignment. The structure is listed as below.
-
-
 
 #### 3.2.2 Structure
 
@@ -113,7 +173,7 @@ Finally app.run. Keep the back-end server working and then test all my api at th
 
 #### 3.2.3 Essential Code Pics
 
-![DFA774EC9C96FCDCE3E597BCDB3CCA60](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/DFA774EC9C96FCDCE3E597BCDB3CCA60.png)
+![7C03E61B-1644-4109-AFB5-DBC3A3E0C6DD](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/7C03E61B-1644-4109-AFB5-DBC3A3E0C6DD.png)
 
 ![2AB38E95D5E5AD521C5C8DEB306B8B9F](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/2AB38E95D5E5AD521C5C8DEB306B8B9F.png)
 
@@ -126,21 +186,17 @@ Finally app.run. Keep the back-end server working and then test all my api at th
 | src        | BaseURL                                                      | Data Format | Note         |
 | ---------- | ------------------------------------------------------------ | ----------- | ------------ |
 | 简爱API    | [https://api.asilu.com/today](javascript:copytext('hrefcopy',0);) | json        | 历史上的今天 |
-| 阿凡达数据 | http://api.avatardata.cn/ActNews/Query                       | xml         | 新闻时事查询 |
+| 阿凡达数据 | http://api.avatardata.cn/MingRenMingYan/LookUp               | xml         | 名人名言查询 |
 | Kate·API   | https://api.66mz8.com/api/translation.php                    | json        | 中英互译     |
 | 聚合数据   | http://ip.taobao.com/service/                                | json        | 周公解梦查询 |
-
-
 
 ### 4.2 My Apis
 
 | Method | Api           | Note                                                         |
 | ------ | ------------- | ------------------------------------------------------------ |
 | GET    | /api/history  | Get today's history affairs.                                 |
-| GET    | /api/news?kw  | Get the detailed news list searched by a certain keyword.    |
+| GET    | /api/quote?kw | Get the relevant famous sayings list searched by a certain keyword. |
 | GET    | /api/dream?kw | Get the detaied dream analysis list searched by a certain keyword. |
-
-
 
 ### 4.3 Intergration
 
@@ -163,43 +219,60 @@ def dream():
 
 ```jsx
       var url = '/dream?kw=' + this.state.keyword
-​      axios.get(url).then((res) => {
-​        console.log('res3:', res.data)
-​        var result=res.data.result
-​        this.setState({myData:result})
-​      })
+	      axios.get(url).then((res) => {
+        	console.log('res3:', res.data)
+        	var result=res.data.result
+        	this.setState({myData:result})
+      })
 ```
 
 ```jsx
     render() {
-​      //初始化render数组状态
-​      let objArr=this.state.myData
-​        return(
-​          <Layout>
-​              <PageHeader
-​                  className="site-page-header"
-​                  ghost={false}
-​                  title="最后我还熟读《周公解梦》，昨晚梦见这个啦？"
-​                  subTitle="想不到吧"
-​              />  
-​            <List
-​                itemLayout="vertical"
-​                dataSource={objArr}
-​                style={{ margin: '0 20px 0 20px' }}
-​                split={true}
-​                renderItem={item => (
-​                <List.Item>
-​                    <List.Item.Meta
-​                    title={'如果你梦到"'+item.title+'"'}
-​                    description={item.des}
-​                    />
-​                    <Divider />
-​                </List.Item>
-​                )}
-​            />            
-​          </Layout>
-​        )
-​      }
+      //初始化render数组状态
+      let objArr=this.state.myData
+      if(objArr!==null){
+        return(
+          <Layout>
+              <PageHeader
+                  className="site-page-header"
+                  ghost={false}
+                  title="最后我还熟读《周公解梦》，昨晚梦见这个啦？"
+                  subTitle="想不到吧"
+              />  
+            <List
+                itemLayout="vertical"
+                dataSource={objArr}
+                style={{ margin: '0 20px 0 20px' }}
+                split={true}
+                renderItem={item => (
+                <List.Item>
+                    <List.Item.Meta
+                    title={'如果你梦到"'+item.title+'"'}
+                    description={item.des}
+                    />
+                    <Divider />
+                </List.Item>
+                )}
+            />            
+          </Layout>
+        )        
+      }
+      else return(
+        <Layout>
+        <PageHeader
+          className="site-page-header"
+          ghost={false}
+          title="最后我还熟读《周公解梦》，昨晚梦见这个啦？"
+          subTitle="想不到吧"
+      />
+        <Empty
+            style={{margin: '10px'}}
+            description="被你逮到了，我确实不知道"
+        >
+        </Empty>
+        </Layout>
+      )
+    }
 ```
 
 
@@ -210,9 +283,11 @@ def dream():
 
 ![Screenshot2](/Users/apple/Desktop/Screenshot2.png)
 
-![63AEE1A8555342C4B1ECA2CB84307E3E](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/63AEE1A8555342C4B1ECA2CB84307E3E.png)
+![612DEFFB-2F9E-4252-9849-A28DEE90AB7C](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/612DEFFB-2F9E-4252-9849-A28DEE90AB7C.png)
 
-![2F0224F730BAE75184D9221CE921DD90](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Caches/Images/2F0224F730BAE75184D9221CE921DD90.png)
+![9DA25028-27E5-458F-BCE7-BCFF71D68EEF](/Users/apple/Library/Containers/com.tencent.qq/Data/Library/Application Support/QQ/Users/953589050/QQ/Temp.db/9DA25028-27E5-458F-BCE7-BCFF71D68EEF.png)
+
+
 
 ## 6. Background Setup Instruction
 
